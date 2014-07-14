@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="DbTools:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DbTools_jar</output-path>
+    <root id="archive" name="DbTools.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/other/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="DbTools" />
+    </root>
+  </artifact>
+</component>
