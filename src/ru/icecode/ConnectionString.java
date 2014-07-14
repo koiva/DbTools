@@ -1,4 +1,6 @@
-import exception.IllegalConnectionString;
+package ru.icecode;
+
+import ru.icecode.exception.IllegalConnectionString;
 
 /**
  * Created by w on 14.07.2014.

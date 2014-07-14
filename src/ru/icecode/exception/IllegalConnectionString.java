@@ -1,4 +1,4 @@
-package exception;
+package ru.icecode.exception;
 
 /**
  * Created by w on 14.07.2014.

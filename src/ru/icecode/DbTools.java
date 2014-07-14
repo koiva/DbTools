@@ -1,17 +1,15 @@
-import exception.IllegalConnectionString;
-import objects.User;
-import oracle.jdbc.driver.OracleDriver;
+package ru.icecode;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Statement;
-import java.sql.Connection;
+import oracle.jdbc.driver.OracleDriver;
+import ru.icecode.exception.IllegalConnectionString;
+import ru.icecode.objects.Trigger;
+import ru.icecode.objects.User;
+
+import java.io.*;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class DbTools
@@ -85,13 +83,49 @@ public class DbTools
                 System.out.println(str);
             }
 
-            try (Db db = new Db(connectionStrings.get(0)))
+            try (Db dataBase21 = new Db(connectionStrings.get(1));
+                 Db dataBase22 = new Db(connectionStrings.get(2));
+            )
             {
-                for (User user : db.getUsers())
+                Map<String, User> users1 = dataBase21.getCustomUsers();
+                Map<String, User> users2 = dataBase22.getCustomUsers();
+
+                User u1 = users1.get("LPU");
+                User u2 = users2.get("LPU");
+
+                List<Trigger> triggers1 = u1.getTriggers();
+                List<Trigger> triggers2 = u2.getTriggers();
+
+                List<String> list1 = new ArrayList<>();
+                List<String> list2 = new ArrayList<>();
+                List<String> delete = new ArrayList<>();
+                List<String> add = new ArrayList<>();
+
+                for (Trigger trigger : triggers1)
+                    list1.add(trigger.toString());
+
+                /*
+                for (Trigger trigger : triggers2)
+                    list2.add(trigger.toString());
+*/
+
+                File myFolder = new File("D:\\OraObj\\Triggers");
+                File[] files = myFolder.listFiles();
+                for (File file : files)
                 {
-                    System.out.println(user);
+                    if (file.getName().matches("^LPU\\..+"))
+                        list2.add(file.getName().substring(0, file.getName().lastIndexOf(".")));
                 }
 
+                ListComparator.compare(list1, list2, delete, add);
+
+                System.out.println("Сравнение баз");
+
+                System.out.println("Удаленно");
+                System.out.println(delete.toString());
+
+                System.out.println("Добавленно");
+                System.out.println(add.toString());
             }
 
         }
