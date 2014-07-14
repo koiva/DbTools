@@ -23,7 +23,7 @@ public class ConnectionString
         value = PREFIX + connectionString;
         user = connectionString.substring(0, connectionString.indexOf("/"));
         password = connectionString.substring(connectionString.indexOf("/") + 1, connectionString.indexOf("@"));
-        sid = connectionString.substring(connectionString.indexOf("@"), connectionString.length());
+        sid = connectionString.substring(connectionString.indexOf("@") + 1, connectionString.length());
     }
 
     public String getValue()

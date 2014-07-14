@@ -19,6 +19,7 @@ public class Db implements AutoCloseable
     public Db(ConnectionString connectionString) throws SQLException
     {
         this.connectionString = connectionString;
+        System.out.println(connectionString.getValue());
         this.connection = DriverManager.getConnection(connectionString.getValue());
     }
 

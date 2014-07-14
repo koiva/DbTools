@@ -1,7 +1,7 @@
 package ru.icecode;
 
 import oracle.jdbc.driver.OracleDriver;
-import ru.icecode.exception.IllegalConnectionString;
+import ru.icecode.exception.RunTime.NotFindTnsnames;
 import ru.icecode.objects.Trigger;
 import ru.icecode.objects.User;
 
@@ -20,81 +20,50 @@ public class DbTools
 
     private static final String CONNECTION_STRINGS_FILENAME = PROGRAM_PATH + "db_list.txt";
 
-    private boolean defineTnsAdmin()
+    public DbTools() {
+        defineTnsAdmin();
+    }
+
+    private void defineTnsAdmin()
     {
         String path = System.getenv("TNS_ADMIN");
 
         if (path == null)
-            return false;
+            throw new NotFindTnsnames();
+
+        ConsoleHelper.println("TNS_ADMIN = " + path);
 
         System.setProperty("oracle.net.tns_admin", path);
-        return true;
     }
-
-    private List<ConnectionString> loadConnectionStrings() throws FileNotFoundException, IOException
-    {
-        List<ConnectionString> list = new ArrayList<>();
-
-        BufferedReader reader = new BufferedReader(new FileReader(CONNECTION_STRINGS_FILENAME));
-
-        while (reader.ready())
-        {
-            String line = reader.readLine().trim();
-
-            if (line.length() == 0)
-                continue;
-
-            try
-            {
-                list.add(new ConnectionString(line));
-            }
-            catch (IllegalConnectionString e)
-            {
-                System.err.println(e.getMessage());
-            }
-        }
-
-        return list;
-    }
-
 
     public static void main(String[] args) throws Exception
     {
+        ConsoleHelper.println("Иструменты для базы данных Oracle.");
+
         DriverManager.registerDriver(new OracleDriver());
-
         DbTools dbTools = new DbTools();
-
-
-        System.out.println("Иструменты для базы данных Oracle.");
-
-        if (!dbTools.defineTnsAdmin())
-        {
-            System.out.println("Пожалуйста установите значение системной перменной TNS_ADMIN, которая указыват на каталог с файлом tnsnames.ora.");
-            return;
-        }
 
         try
         {
-            List<ConnectionString> connectionStrings = dbTools.loadConnectionStrings();
+            ConnectionStringList connectionStringList = new ConnectionStringList(CONNECTION_STRINGS_FILENAME);
 
-            System.out.println("Загруженные БД:");
-            for (ConnectionString str : connectionStrings)
+            ConsoleHelper.println("Загруженные БД:");
+            for (ConnectionString str : connectionStringList.getMap().values())
             {
                 System.out.println(str);
             }
 
-            try (Db dataBase21 = new Db(connectionStrings.get(1));
-                 Db dataBase22 = new Db(connectionStrings.get(2));
+            try (Db dataBase21 = new Db(connectionStringList.getMap().get("NVDS"))
             )
             {
                 Map<String, User> users1 = dataBase21.getCustomUsers();
-                Map<String, User> users2 = dataBase22.getCustomUsers();
+
 
                 User u1 = users1.get("LPU");
-                User u2 = users2.get("LPU");
+
 
                 List<Trigger> triggers1 = u1.getTriggers();
-                List<Trigger> triggers2 = u2.getTriggers();
+
 
                 List<String> list1 = new ArrayList<>();
                 List<String> list2 = new ArrayList<>();
@@ -109,7 +78,7 @@ public class DbTools
                     list2.add(trigger.toString());
 */
 
-                File myFolder = new File("D:\\OraObj\\Triggers");
+                File myFolder = new File("D:\\Work\\OraObj\\Triggers");
                 File[] files = myFolder.listFiles();
                 for (File file : files)
                 {
@@ -119,13 +88,13 @@ public class DbTools
 
                 ListComparator.compare(list1, list2, delete, add);
 
-                System.out.println("Сравнение баз");
+                ConsoleHelper.println("Сравнение баз");
 
-                System.out.println("Удаленно");
-                System.out.println(delete.toString());
+                ConsoleHelper.println("Удаленно");
+                ConsoleHelper.println(delete.toString());
 
-                System.out.println("Добавленно");
-                System.out.println(add.toString());
+                ConsoleHelper.println("Добавленно");
+                ConsoleHelper.println(add.toString());
             }
 
         }

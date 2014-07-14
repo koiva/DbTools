@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by w on 14.07.2014.
  */
-public class User
+public class User extends DbObject
 {
     public static List<String> standardUsersNames = new ArrayList<>();
     {
@@ -71,44 +71,14 @@ public class User
 
     }
 
-    private final String name;
     private final Db owner;
 
     public User(Db owner, String name)
     {
+        super(name);
         this.owner = owner;
-        this.name = name;
     }
 
-    public String getName()
-    {
-        return name;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        if (!name.equals(user.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return name.hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return name;
-    }
 
     public List<Trigger> getTriggers() throws SQLException
     {
@@ -116,7 +86,7 @@ public class User
 
         try (PreparedStatement stat = owner.getConnection().prepareStatement("select * from all_triggers where owner = ?"))
         {
-            stat.setString(1, name);
+            stat.setString(1, getName());
             ResultSet rs = stat.executeQuery();
 
             while (rs.next())
