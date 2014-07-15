@@ -1,30 +1,46 @@
 package ru.icecode;
 
 import oracle.jdbc.driver.OracleDriver;
+import ru.icecode.command.CommandFactory;
 import ru.icecode.exception.RunTime.NotFindTnsnames;
-import ru.icecode.objects.Trigger;
-import ru.icecode.objects.User;
 
-import java.io.*;
 import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
 
-
-public class DbTools
+/**
+ * Created by QQQ on 14.07.2014.
+ */
+public class Main
 {
-
-    private static final String PROGRAM_DIR = DbTools.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    private static final String PROGRAM_DIR = DbFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     private static final String PROGRAM_PATH = PROGRAM_DIR + '\\';
 
     private static final String CONNECTION_STRINGS_FILENAME = PROGRAM_PATH + "db_list.txt";
+    private static final String SCRIPT_FILE_NAME = PROGRAM_PATH + "script.txt";
 
-    public DbTools() {
+    public static void main(String[] args) throws SQLException
+    {
+        ConsoleHelper.println("Иструменты для базы данных Oracle.");
+
         defineTnsAdmin();
+        DriverManager.registerDriver(new OracleDriver());
+
+        try(DbFactory dbFactory = new DbFactory(new ConnectionStringMap(new ScriptFile(CONNECTION_STRINGS_FILENAME))))
+        {
+            ScriptFile scriptFile = new ScriptFile(SCRIPT_FILE_NAME);
+            for (String line : scriptFile.getLines())
+            {
+                CommandFactory.execute(line.split("\\s+"));
+            }
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    private void defineTnsAdmin()
+
+    private static void defineTnsAdmin()
     {
         String path = System.getenv("TNS_ADMIN");
 
@@ -35,25 +51,10 @@ public class DbTools
 
         System.setProperty("oracle.net.tns_admin", path);
     }
+}
 
-    public static void main(String[] args) throws Exception
-    {
-        ConsoleHelper.println("Иструменты для базы данных Oracle.");
-
-        DriverManager.registerDriver(new OracleDriver());
-        DbTools dbTools = new DbTools();
-
-        try
-        {
-            ConnectionStringList connectionStringList = new ConnectionStringList(CONNECTION_STRINGS_FILENAME);
-
-            ConsoleHelper.println("Загруженные БД:");
-            for (ConnectionString str : connectionStringList.getMap().values())
-            {
-                System.out.println(str);
-            }
-
-            try (Db dataBase21 = new Db(connectionStringList.getMap().get("NVDS"))
+/*
+            try (Db dataBase21 = new Db(connectionStringMap.getMap().get("NVDS"))
             )
             {
                 Map<String, User> users1 = dataBase21.getCustomUsers();
@@ -77,7 +78,7 @@ public class DbTools
                 for (Trigger trigger : triggers2)
                     list2.add(trigger.toString());
 */
-
+/*
                 File myFolder = new File("D:\\Work\\OraObj\\Triggers");
                 File[] files = myFolder.listFiles();
                 for (File file : files)
@@ -97,16 +98,7 @@ public class DbTools
                 ConsoleHelper.println(add.toString());
             }
 
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-        }
-
-
-    }
-}
-
+        */
 /* TODO
 
 
@@ -125,5 +117,3 @@ public class DbTools
 
 
  */
-
-

@@ -14,26 +14,14 @@ import java.util.Map;
 /**
  * Created by QQQ on 14.07.2014.
  */
-public class ConnectionStringList
+public class ConnectionStringMap
 {
-    private final String fileName;
     private final Map<String, ConnectionString> map = new HashMap<>();
 
-    public ConnectionStringList(String fileName) throws FileNotFoundException, IOException
+    public ConnectionStringMap(ScriptFile file)
     {
-        this.fileName = fileName;
-
-        BufferedReader reader = new BufferedReader(new FileReader(fileName));
-
-        while (reader.ready())
+        for (String line : file.getLines())
         {
-            String line = reader.readLine().trim();
-
-            if (line.length() == 0)
-                continue;
-
-            if (line.charAt(0) == ';')
-                continue;
 
             String elementName = null;
 
@@ -62,9 +50,5 @@ public class ConnectionStringList
     public Map<String, ConnectionString> getMap()
     {
         return map;
-    }
-
-    public String getFileName() {
-        return fileName;
     }
 }
