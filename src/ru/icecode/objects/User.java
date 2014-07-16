@@ -91,12 +91,36 @@ public class User extends DbObject
 
             while (rs.next())
             {
-                String triggerName = rs.getString("trigger_name");
-                triggers.add(new Trigger(this, triggerName));
+                triggers.add(new Trigger(this, rs));
             }
         }
 
         return triggers;
+    }
+
+    public List<Type> getTypes() throws SQLException
+    {
+        List<Type> types = new ArrayList<>();
+
+        try (PreparedStatement stat = owner.getConnection().prepareStatement(
+                "select  " +
+                        "dbms_metadata.get_ddl('TYPE', t.type_name, 'LPU') ddl, " +
+                        "t.* " +
+                "from " +
+                        "all_types t " +
+                "where " +
+                        "owner = ?"))
+        {
+            stat.setString(1, getName());
+            ResultSet rs = stat.executeQuery();
+
+            while (rs.next())
+            {
+                types.add(new Type(this, rs));
+            }
+        }
+
+        return types;
     }
 
 }

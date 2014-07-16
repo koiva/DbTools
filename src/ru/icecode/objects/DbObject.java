@@ -7,6 +7,7 @@ package ru.icecode.objects;
 public class DbObject
 {
     private final String name;
+    protected String ddlScript = "";
 
     public DbObject(String name)
     {
@@ -42,5 +43,10 @@ public class DbObject
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+
+    public String getDdlScript() {
+        return ddlScript;
     }
 }
